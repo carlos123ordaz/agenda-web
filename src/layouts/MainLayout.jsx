@@ -16,7 +16,6 @@ import {
 import {
     Home,
     Users,
-    CheckCircle,
     Settings,
     Bell,
     BarChart3,
@@ -87,7 +86,7 @@ export const MainLayout = () => {
                 </List>
 
                 <Divider sx={{ my: 1 }} />
-
+                {/* 
                 <Box sx={{ px: 2, py: 1 }}>
                     <Button
                         variant="text"
@@ -97,7 +96,7 @@ export const MainLayout = () => {
                     >
                         Configuración
                     </Button>
-                </Box>
+                </Box> */}
             </Drawer>
 
             {/* MAIN CONTENT */}
@@ -114,14 +113,14 @@ export const MainLayout = () => {
 
                         <Box sx={{ flex: 1 }} />
 
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <IconButton size="small">
                                 <Bell size={20} />
                             </IconButton>
                             <Button variant="text" size="small" sx={{ textTransform: 'none' }}>
                                 Perfil
                             </Button>
-                        </Box>
+                        </Box> */}
                     </Toolbar>
                 </AppBar>
 
