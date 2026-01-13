@@ -56,7 +56,7 @@ export const MainLayout = () => {
                 <List sx={{ pt: 1 }}>
                     <ListItem
                         button
-                        sx={{ mb: 0.5, '&:hover': { backgroundColor: '#f0f0f0' } }}
+                        sx={{ mb: 0.5, '&:hover': { backgroundColor: '#f0f0f0', cursor: 'pointer' } }}
                         onClick={() => navigate('/')}
                     >
                         <ListItemIcon sx={{ minWidth: 40 }}>
@@ -66,7 +66,7 @@ export const MainLayout = () => {
                     </ListItem>
                     <ListItem
                         button
-                        sx={{ mb: 0.5, '&:hover': { backgroundColor: '#f0f0f0' } }}
+                        sx={{ mb: 0.5, '&:hover': { backgroundColor: '#f0f0f0', cursor: 'pointer' } }}
                         onClick={() => navigate('/usuarios')}
                     >
                         <ListItemIcon sx={{ minWidth: 40 }}>
@@ -76,7 +76,7 @@ export const MainLayout = () => {
                     </ListItem>
                     <ListItem
                         button
-                        sx={{ mb: 0.5, '&:hover': { backgroundColor: '#f0f0f0' } }}
+                        sx={{ mb: 0.5, '&:hover': { backgroundColor: '#f0f0f0', cursor: 'pointer' } }}
                         onClick={() => navigate('/reportes')}
                     >
                         <ListItemIcon sx={{ minWidth: 40 }}>
