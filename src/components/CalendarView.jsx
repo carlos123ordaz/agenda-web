@@ -208,9 +208,6 @@ const CalendarView = ({
                         <IconButton size="small" onClick={onOpenWorkTypesDialog}>
                             <Settings size={18} />
                         </IconButton>
-                        <IconButton size="small">
-                            <MoreVertical size={18} />
-                        </IconButton>
                     </Box>
                 </Box>
 
