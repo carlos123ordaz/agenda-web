@@ -72,7 +72,7 @@ const CalendarView = ({
     const getDayLetter = (day) => {
         const days = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
         const date = new Date(year, month, day);
-        return days[date.getDay()];
+        return days[date.getDay() - 1];
     };
 
     const getColspan = (day, person) => {
