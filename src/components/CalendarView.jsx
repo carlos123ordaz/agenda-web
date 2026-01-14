@@ -338,6 +338,7 @@ const CalendarView = ({
                                             </td>
                                             {calendarDays.map((day) => {
                                                 const item = getScheduleItem(day, person);
+                                                const letterDay = getDayLetter(day);
                                                 const workData = item ? workTypes[item.workTypeCode] : null;
                                                 const colspan = getColspan(day, person);
                                                 const isToday = currentDay === day;
@@ -367,6 +368,8 @@ const CalendarView = ({
                                                     bgColor = workData.color;
                                                 } else if (isToday) {
                                                     bgColor = '#eff8ffff';
+                                                } else if (letterDay === 'D' || letterDay === 'S') {
+                                                    bgColor = '#ebebeb';
                                                 } else {
                                                     bgColor = personIdx % 2 === 0 ? '#fafafa' : '#fff';
                                                 }
@@ -413,22 +416,12 @@ const CalendarView = ({
                                                             }}
                                                             onMouseEnter={(e) => {
                                                                 if (!item) {
-                                                                    e.target.style.backgroundColor = isToday
-                                                                        ? '#bbdefb'
-                                                                        : personIdx % 2 === 0
-                                                                            ? '#f0f0f0'
-                                                                            : '#f5f5f5';
                                                                     e.target.style.boxShadow =
                                                                         'inset 0 0 4px rgba(0,0,0,0.15)';
                                                                 }
                                                             }}
                                                             onMouseLeave={(e) => {
                                                                 if (!item) {
-                                                                    e.target.style.backgroundColor = isToday
-                                                                        ? '#e3f2fd'
-                                                                        : personIdx % 2 === 0
-                                                                            ? '#fafafa'
-                                                                            : '#fff';
                                                                     e.target.style.boxShadow = 'none';
                                                                 }
                                                             }}

@@ -77,9 +77,7 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
         severity: 'success',
     });
 
-    // ✓ Recargar asignaciones cuando cambia el mes/año
     useEffect(() => {
-        console.log('📅 Loading assignments for:', { month, year });
         loadAssignmentsByMonth(month, year);
     }, [month, year, loadAssignmentsByMonth]);
 
@@ -350,6 +348,7 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
                 <DialogContent sx={{ pt: 3 }}>
                     <TextField
                         fullWidth
+                        sx={{ mt: 1 }}
                         label="Nombre del personal"
                         value={newPerson}
                         onChange={(e) => setNewPerson(e.target.value)}
