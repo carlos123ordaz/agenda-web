@@ -3,18 +3,18 @@ import axiosInstance from '../config/axiosConfig';
 const ENDPOINT = '/assignments';
 
 const assignmentService = {
-    getAllAssignments: async () => {
+    getAllAssignments: async (areaId) => {
         try {
-            const response = await axiosInstance.get(ENDPOINT);
+            const response = await axiosInstance.get(`${ENDPOINT}/${areaId}`);
             return response.data.data;
         } catch (error) {
             throw error.response?.data || error;
         }
     },
 
-    getAssignmentsByMonth: async (month, year) => {
+    getAssignmentsByMonth: async (month, year, areaId) => {
         try {
-            const response = await axiosInstance.get(`${ENDPOINT}/month/${month}/${year}`);
+            const response = await axiosInstance.get(`${ENDPOINT}/month/${month}/${year}/${areaId}`);
             return response.data.data;
         } catch (error) {
             throw error.response?.data || error;

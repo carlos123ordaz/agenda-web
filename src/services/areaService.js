@@ -1,19 +1,18 @@
 import axiosInstance from '../config/axiosConfig';
 
-const ENDPOINT = '/users';
+const ENDPOINT = '/areas';
 
-const userService = {
-    getUsersByAreaId: async (areaId) => {
+const areaService = {
+    getAllAreas: async () => {
         try {
-            const response = await axiosInstance.get(ENDPOINT, { params: { areaId } });
+            const response = await axiosInstance.get(ENDPOINT);
             return response.data.data;
-
         } catch (error) {
             throw error.response?.data || error;
         }
     },
 
-    getUserById: async (id) => {
+    getAreaById: async (id) => {
         try {
             const response = await axiosInstance.get(`${ENDPOINT}/${id}`);
             return response.data.data;
@@ -22,25 +21,24 @@ const userService = {
         }
     },
 
-    createUser: async (userData) => {
+    createArea: async (areaData) => {
         try {
-            const response = await axiosInstance.post(ENDPOINT, userData);
+            const response = await axiosInstance.post(ENDPOINT, areaData);
             return response.data.data;
         } catch (error) {
             throw error.response?.data || error;
         }
     },
 
-    updateUser: async (id, userData) => {
+    updateArea: async (id, areaData) => {
         try {
-            const response = await axiosInstance.put(`${ENDPOINT}/${id}`, userData);
+            const response = await axiosInstance.put(`${ENDPOINT}/${id}`, areaData);
             return response.data.data;
         } catch (error) {
             throw error.response?.data || error;
         }
     },
-
-    deleteUser: async (id) => {
+    deleteArea: async (id) => {
         try {
             const response = await axiosInstance.delete(`${ENDPOINT}/${id}`);
             return response.data;
@@ -50,4 +48,4 @@ const userService = {
     },
 };
 
-export default userService;
+export default areaService;

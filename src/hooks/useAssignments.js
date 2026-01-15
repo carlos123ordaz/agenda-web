@@ -1,44 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import { assignmentService } from '../services';
 
-export const useAssignments = (month = null, year = null) => {
+export const useAssignments = (month = null, year = null, areaId = null) => {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [currentMonth, setCurrentMonth] = useState(month);
     const [currentYear, setCurrentYear] = useState(year);
+    const [currentAreaId, setCurrentAreaId] = useState(areaId);
 
-    // ✓ Cargar asignaciones del mes actual
-    const loadAssignmentsByMonth = useCallback(async (targetMonth, targetYear) => {
+    const loadAssignmentsByMonth = useCallback(async (targetMonth, targetYear, targetAreaId) => {
         try {
             setLoading(true);
             setError(null);
-            const data = await assignmentService.getAssignmentsByMonth(targetMonth, targetYear);
+            const data = await assignmentService.getAssignmentsByMonth(targetMonth, targetYear, targetAreaId);
             setAssignments(data);
             setCurrentMonth(targetMonth);
             setCurrentYear(targetYear);
+            setCurrentAreaId(targetAreaId);
             return data;
         } catch (err) {
             setError(err.message || 'Error al cargar asignaciones del mes');
             console.error('Error loading assignments by month:', err);
             return [];
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    // ✓ Función alternativa para cargar todas (solo cuando sea necesario)
-    const loadAllAssignments = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const data = await assignmentService.getAllAssignments();
-            setAssignments(data);
-            setCurrentMonth(null);
-            setCurrentYear(null);
-        } catch (err) {
-            setError(err.message || 'Error al cargar asignaciones');
-            console.error('Error loading assignments:', err);
         } finally {
             setLoading(false);
         }
@@ -157,21 +141,13 @@ export const useAssignments = (month = null, year = null) => {
         },
         []
     );
-
-    // ✓ Carga inicial: solo si se pasa mes/año, sino espera a que se llame manualmente
-    useEffect(() => {
-        if (month !== null && year !== null) {
-            loadAssignmentsByMonth(month, year);
-        }
-    }, []); // Solo al montar
-
     return {
         assignments,
         loading,
         error,
         currentMonth,
         currentYear,
-        loadAllAssignments,
+        currentAreaId,
         loadAssignmentsByMonth,
         loadAssignmentsByUser,
         loadAssignmentsByDateRange,

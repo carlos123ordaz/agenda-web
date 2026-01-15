@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
     Box,
     AppBar,
@@ -8,23 +8,24 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Button,
-    IconButton,
     Divider,
     Typography,
+    Select,
+    InputLabel,
+    FormControl,
+    MenuItem,
 } from '@mui/material';
 import {
     Home,
     Users,
-    Settings,
-    Bell,
     BarChart3,
 } from 'lucide-react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { MainContext } from '../contexts/MainContext';
 
 export const MainLayout = () => {
     const navigate = useNavigate();
-
+    const { areas, setAreaSelected, areaSelected } = useContext(MainContext);
     return (
         <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f8f9fa' }}>
             {/* SIDEBAR */}
@@ -84,19 +85,7 @@ export const MainLayout = () => {
                         <ListItemText primary="Reportes" />
                     </ListItem>
                 </List>
-
                 <Divider sx={{ my: 1 }} />
-                {/* 
-                <Box sx={{ px: 2, py: 1 }}>
-                    <Button
-                        variant="text"
-                        fullWidth
-                        startIcon={<Settings size={16} />}
-                        sx={{ textTransform: 'none', color: '#666', fontSize: '13px', justifyContent: 'flex-start' }}
-                    >
-                        Configuración
-                    </Button>
-                </Box> */}
             </Drawer>
 
             {/* MAIN CONTENT */}
@@ -112,19 +101,17 @@ export const MainLayout = () => {
                         </Box>
 
                         <Box sx={{ flex: 1 }} />
+                        <FormControl sx={{ minWidth: 250 }}>
+                            <InputLabel sx={{ fontSize: '13px' }}>Área</InputLabel>
+                            <Select value={areaSelected || ''} onChange={(e) => { setAreaSelected(e.target.value) }} label="Área" size="small">
+                                {areas && areas.map((area) => (
+                                    <MenuItem key={area._id} value={area._id}>{area.name}</MenuItem>
+                                ))}
 
-                        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <IconButton size="small">
-                                <Bell size={20} />
-                            </IconButton>
-                            <Button variant="text" size="small" sx={{ textTransform: 'none' }}>
-                                Perfil
-                            </Button>
-                        </Box> */}
+                            </Select>
+                        </FormControl>
                     </Toolbar>
                 </AppBar>
-
-                {/* OUTLET - Renderiza el contenido de las páginas */}
                 <Outlet />
             </Box>
         </Box>

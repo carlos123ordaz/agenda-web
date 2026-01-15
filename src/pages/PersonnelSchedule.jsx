@@ -23,7 +23,7 @@ import AvailabilityView from '../components/AvailabilityView';
 import WorkTypesDialog from '../components/WorkTypesDialog';
 import { useUsers, useAssignments, useCalendar, useScheduleData } from '../hooks';
 
-const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes, onCreateWorkType, onUpdateWorkType, onDeleteWorkType }) => {
+const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onCreateWorkType, onUpdateWorkType, onDeleteWorkType }) => {
     const {
         users,
         loading: usersLoading,
@@ -35,7 +35,6 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
         currentDate,
         month,
         year,
-        monthName,
         daysInMonth,
         getDaysInMonth,
         getFirstDayOfMonth,
@@ -43,7 +42,6 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
         handleNextMonth,
     } = useCalendar();
 
-    // ✓ Hook optimizado: ahora acepta mes/año inicial
     const {
         assignments,
         loading: assignmentsLoading,
@@ -56,8 +54,6 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
 
     const {
         schedule,
-        buildScheduleMap,
-        getScheduleItem,
     } = useScheduleData(assignments, users);
 
     const [viewMode, setViewMode] = useState('calendar');
@@ -71,6 +67,7 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
     const [newPerson, setNewPerson] = useState('');
     const [editingAssignmentId, setEditingAssignmentId] = useState(null);
     const [addingPersonLoading, setAddingPersonLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
@@ -78,8 +75,8 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
     });
 
     useEffect(() => {
-        loadAssignmentsByMonth(month, year);
-    }, [month, year, loadAssignmentsByMonth]);
+        loadAssignmentsByMonth(month, year, '6967f14d56df4ec236b8fa88');
+    }, [month, year]);
 
     const userNames = useMemo(() => users.map((u) => u.name), [users]);
 
@@ -152,6 +149,7 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
         }
 
         try {
+            setIsSaving(true);
             const user = users.find((u) => u.name === selectedPerson);
             if (!user) {
                 showSnackbar('Usuario no encontrado', 'error');
@@ -166,6 +164,7 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
                 workTypeCode: workType.toUpperCase(),
                 startDate: startDateObj.toISOString(),
                 endDate: endDateObj.toISOString(),
+                areaId: '6967f14d56df4ec236b8fa88',
             };
 
             if (editingAssignmentId) {
@@ -187,6 +186,8 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
                 error.message || 'Error al guardar asignación',
                 'error'
             );
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -326,7 +327,7 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
                             label="Día final (opcional)"
                             value={endDate}
                             onChange={(e) =>
-                                setEndDate(Math.max(selectedDate, parseInt(e.target.value) || selectedDate))
+                                setEndDate(parseInt(e.target.value))
                             }
                             inputProps={{ min: selectedDate, max: daysInMonth }}
                             fullWidth
@@ -337,7 +338,7 @@ const PersonnelSchedule = ({ workTypesMap = {}, workTypes = [], onLoadWorkTypes,
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
-                    <Button onClick={handleSaveSchedule} variant="contained">
+                    <Button disabled={isSaving} onClick={handleSaveSchedule} variant="contained">
                         {editingAssignmentId ? 'Actualizar' : 'Guardar'}
                     </Button>
                 </DialogActions>

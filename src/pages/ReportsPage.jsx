@@ -20,11 +20,13 @@ import {
 import { useAssignments, useWorkTypes, useUsers } from '../hooks';
 
 const ReportsPage = () => {
+    const {
+        users,
+        loading: usersLoading,
+    } = useUsers();
     const today = new Date();
     const [selectedYear, setSelectedYear] = useState(today.getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
-
-    // Hook sin parámetros iniciales
     const {
         assignments,
         loading: assignmentsLoading,
@@ -33,8 +35,6 @@ const ReportsPage = () => {
     } = useAssignments();
 
     const { workTypesMap, loading: workTypesLoading } = useWorkTypes();
-    const { users, loading: usersLoading } = useUsers();
-
     const months = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
         'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -42,11 +42,9 @@ const ReportsPage = () => {
 
     const years = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-
-    // Cargar asignaciones cuando cambia el mes/año
     useEffect(() => {
         if (loadAssignmentsByMonth) {
-            loadAssignmentsByMonth(selectedMonth, selectedYear);
+            loadAssignmentsByMonth(selectedMonth, selectedYear, '6967f14d56df4ec236b8fa88');
         }
     }, [selectedMonth, selectedYear, loadAssignmentsByMonth]);
 

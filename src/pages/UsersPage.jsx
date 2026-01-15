@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     Box,
     Paper,
@@ -19,25 +19,34 @@ import {
     CircularProgress,
     Snackbar,
     Alert,
+    Chip,
+    Autocomplete,
 } from '@mui/material';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import { useUsers } from '../hooks';
+import { MainContext } from '../contexts/MainContext';
 
-const UsersPage = () => {
+const UsersPage = ({ }) => {
     const {
         users,
-        loading,
-        error: apiError,
-        createUser,
-        updateUserData,
-        deleteUserData,
+        loading: usersLoading,
+        error: usersError,
+        createUser: onCreateUser,
+        updateUserData: onUpdateUser,
+        deleteUserData: onDeleteUser,
     } = useUsers();
 
+    const [areasLoading, setAreasLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
     const [editingId, setEditingId] = useState(null);
-    const [formData, setFormData] = useState('');
+    const { areas } = useContext(MainContext);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        areas: [],
+    });
     const [deleteTargetId, setDeleteTargetId] = useState(null);
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -55,41 +64,51 @@ const UsersPage = () => {
 
     const handleAddNew = () => {
         setEditingId(null);
-        setFormData('');
+        setFormData({ name: '', email: '', areas: [] });
         setOpenDialog(true);
     };
 
     const handleEdit = (user) => {
         setEditingId(user._id);
-        setFormData(user.name);
+        setFormData({
+            name: user.name,
+            email: user.email || '',
+            areas: user.areas || [],
+        });
         setOpenDialog(true);
     };
 
     const handleSave = async () => {
-        if (!formData.trim()) {
+        if (!formData.name.trim()) {
             showSnackbar('Por favor ingresa un nombre', 'error');
             return;
         }
 
         try {
+            const userData = {
+                name: formData.name.trim().toUpperCase(),
+                email: formData.email.trim() || null,
+                areas: formData.areas.map(area => area._id),
+            };
+
             if (editingId) {
                 const user = users.find((u) => u._id === editingId);
-                await updateUserData(editingId, {
-                    name: formData.trim().toUpperCase(),
-                    email: user.email,
+                await onUpdateUser(editingId, {
+                    ...userData,
                     status: user.status,
                 });
                 showSnackbar('Usuario actualizado correctamente');
             } else {
-                await createUser(formData.trim().toUpperCase());
+                await onCreateUser(userData.name, userData.email, userData.areas);
                 showSnackbar('Usuario agregado correctamente');
             }
+
             setOpenDialog(false);
-            setFormData('');
+            setFormData({ name: '', email: '', areas: [] });
             setEditingId(null);
         } catch (error) {
             showSnackbar(
-                error.response?.data?.message || 'Error al guardar usuario',
+                error.message || 'Error al guardar usuario',
                 'error'
             );
         }
@@ -102,13 +121,13 @@ const UsersPage = () => {
 
     const handleConfirmDelete = async () => {
         try {
-            await deleteUserData(deleteTargetId);
+            await onDeleteUser(deleteTargetId);
             showSnackbar('Usuario eliminado correctamente');
             setOpenDeleteConfirm(false);
             setDeleteTargetId(null);
         } catch (error) {
             showSnackbar(
-                error.response?.data?.message || 'Error al eliminar usuario',
+                error.message || 'Error al eliminar usuario',
                 'error'
             );
         }
@@ -116,11 +135,11 @@ const UsersPage = () => {
 
     const handleCancel = () => {
         setOpenDialog(false);
-        setFormData('');
+        setFormData({ name: '', email: '', areas: [] });
         setEditingId(null);
     };
 
-    if (loading) {
+    if (usersLoading || areasLoading) {
         return (
             <Box
                 sx={{
@@ -197,9 +216,9 @@ const UsersPage = () => {
                     </Box>
                 </Box>
 
-                {apiError && (
+                {usersError && (
                     <Alert severity="error" sx={{ mb: 2 }}>
-                        {apiError}
+                        {usersError}
                     </Alert>
                 )}
 
@@ -207,11 +226,17 @@ const UsersPage = () => {
                     <Table>
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                <TableCell sx={{ fontWeight: 600, width: '10%', fontSize: '12px' }}>
+                                <TableCell sx={{ fontWeight: 600, width: '8%', fontSize: '12px' }}>
                                     #
                                 </TableCell>
-                                <TableCell sx={{ fontWeight: 600, fontSize: '12px' }}>
+                                <TableCell sx={{ fontWeight: 600, fontSize: '12px', width: '30%' }}>
                                     Nombre
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 600, fontSize: '12px', width: '25%' }}>
+                                    Email
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 600, fontSize: '12px', width: '22%' }}>
+                                    Áreas
                                 </TableCell>
                                 <TableCell
                                     sx={{
@@ -236,6 +261,32 @@ const UsersPage = () => {
                                             {idx + 1}
                                         </TableCell>
                                         <TableCell sx={{ fontSize: '12px' }}>{user.name}</TableCell>
+                                        <TableCell sx={{ fontSize: '12px', color: '#666' }}>
+                                            {user.email || '-'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                                                {user.areas && user.areas.length > 0 ? (
+                                                    user.areas.map((area) => (
+                                                        <Chip
+                                                            key={area._id}
+                                                            label={`${area.name}`}
+                                                            size="small"
+                                                            sx={{
+                                                                fontSize: '11px',
+                                                                height: '22px',
+                                                                backgroundColor: '#7c3aed',
+                                                                color: '#fff',
+                                                            }}
+                                                        />
+                                                    ))
+                                                ) : (
+                                                    <Typography sx={{ fontSize: '11px', color: '#999' }}>
+                                                        Sin áreas
+                                                    </Typography>
+                                                )}
+                                            </Box>
+                                        </TableCell>
                                         <TableCell sx={{ textAlign: 'center' }}>
                                             <IconButton
                                                 size="small"
@@ -258,7 +309,7 @@ const UsersPage = () => {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={3} sx={{ textAlign: 'center', py: 4 }}>
+                                    <TableCell colSpan={5} sx={{ textAlign: 'center', py: 4 }}>
                                         <Typography sx={{ color: '#999', fontSize: '13px' }}>
                                             No se encontraron usuarios
                                         </Typography>
@@ -286,21 +337,71 @@ const UsersPage = () => {
                     <TextField
                         fullWidth
                         label="Nombre del usuario"
-                        value={formData}
-                        onChange={(e) => setFormData(e.target.value)}
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Ej: JUAN PEREZ GARCIA"
-                        onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                                handleSave();
-                            }
-                        }}
                         autoFocus
                         sx={{
                             mt: 1,
+                            mb: 2,
                             '& .MuiInputBase-input': {
                                 fontSize: '14px',
                             },
                         }}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Email (opcional)"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="Ej: juan.perez@empresa.com"
+                        sx={{
+                            mb: 2,
+                            '& .MuiInputBase-input': {
+                                fontSize: '14px',
+                            },
+                        }}
+                    />
+                    <Autocomplete
+                        multiple
+                        options={areas}
+                        getOptionLabel={(option) => option.name}
+                        value={formData.areas}
+                        onChange={(event, newValue) => {
+                            setFormData({
+                                ...formData,
+                                areas: newValue,
+                            });
+                        }}
+                        isOptionEqualToValue={(option, value) => option._id === value._id}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    key={option._id}
+                                    label={option.name}
+                                    {...getTagProps({ index })}
+                                    size="small"
+                                    sx={{
+                                        backgroundColor: '#7c3aed',
+                                        color: '#fff',
+                                    }}
+                                />
+                            ))
+                        }
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Áreas"
+                                placeholder="Selecciona áreas"
+                                helperText="Selecciona una o más áreas para el usuario"
+                                sx={{
+                                    '& .MuiInputBase-input': {
+                                        fontSize: '14px',
+                                    },
+                                }}
+                            />
+                        )}
                     />
                 </DialogContent>
                 <DialogActions>

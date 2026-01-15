@@ -36,19 +36,14 @@ const CalendarView = ({
     onAddPerson,
     onOpenWorkTypesDialog,
     onEditAssignment,
-    onDeleteAssignment, // ✓ Nueva prop
+    onDeleteAssignment,
 }) => {
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
     const daysInMonth = getDaysInMonth(currentDate);
-    const firstDay = getFirstDayOfMonth(currentDate);
-
-    // ✓ Estado para el menú contextual
     const [contextMenu, setContextMenu] = useState(null);
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-
-    // ✓ Detectar el día actual
     const today = new Date();
     const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
     const currentDay = isCurrentMonth ? today.getDate() : null;
@@ -70,9 +65,9 @@ const CalendarView = ({
     };
 
     const getDayLetter = (day) => {
-        const days = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+        const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
         const date = new Date(year, month, day);
-        return days[date.getDay() - 1];
+        return days[date.getDay()];
     };
 
     const getColspan = (day, person) => {
@@ -110,7 +105,6 @@ const CalendarView = ({
         return endDay;
     };
 
-    // ✓ Manejar click derecho en asignación
     const handleContextMenu = (event, day, person, item) => {
         if (!item) return;
 
@@ -266,7 +260,6 @@ const CalendarView = ({
                                         APELLIDOS Y NOMBRES
                                     </th>
                                     {calendarDays.map((day) => {
-                                        // ✓ Resaltar columna del día actual
                                         const isToday = currentDay === day;
                                         return (
                                             <th
@@ -331,7 +324,7 @@ const CalendarView = ({
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                     }}
-                                                    title={person} // tooltip al pasar el mouse
+                                                    title={person}
                                                 >
                                                     {person}
                                                 </div>
@@ -361,8 +354,6 @@ const CalendarView = ({
                                                 if (isSkipped) {
                                                     return null;
                                                 }
-
-                                                // ✓ Color de fondo con resaltado del día actual
                                                 let bgColor;
                                                 if (workData) {
                                                     bgColor = workData.color;
@@ -379,7 +370,7 @@ const CalendarView = ({
                                                         key={day}
                                                         title={
                                                             workData
-                                                                ? `${workData.label} (Click derecho para opciones)`
+                                                                ? `${workData.label}`
                                                                 : 'Sin asignar'
                                                         }
                                                         arrow
@@ -439,8 +430,6 @@ const CalendarView = ({
                     </Box>
                 </Box>
             </Paper>
-
-            {/* ✓ Menú contextual */}
             <Menu
                 open={contextMenu !== null}
                 onClose={handleCloseContextMenu}
@@ -460,8 +449,6 @@ const CalendarView = ({
                     Eliminar asignación
                 </MenuItem>
             </Menu>
-
-            {/* ✓ Diálogo de confirmación de eliminación */}
             <Dialog
                 open={deleteConfirmOpen}
                 onClose={() => setDeleteConfirmOpen(false)}
@@ -510,7 +497,6 @@ const CalendarView = ({
     );
 };
 
-// Función de comparación para React.memo
 const arePropsEqual = (prevProps, nextProps) => {
     if (prevProps.currentDate.getTime() !== nextProps.currentDate.getTime()) {
         return false;

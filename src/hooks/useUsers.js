@@ -1,16 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { userService } from '../services';
+import { MainContext } from '../contexts/MainContext';
 
 export const useUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    const loadUsers = useCallback(async () => {
+    const { areaSelected } = useContext(MainContext);
+    const loadUsers = useCallback(async (areaId) => {
         try {
             setLoading(true);
             setError(null);
-            const data = await userService.getAllUsers();
+            const data = await userService.getUsersByAreaId(areaId);
             setUsers(data);
         } catch (err) {
             setError(err.message || 'Error al cargar usuarios');
@@ -20,10 +21,10 @@ export const useUsers = () => {
         }
     }, []);
 
-    const createUser = useCallback(async (name, email = null) => {
+    const createUser = useCallback(async (name, email = null, areas) => {
         try {
             setError(null);
-            const newUser = await userService.createUser({ name, email });
+            const newUser = await userService.createUser({ name, email, areas });
             setUsers((prev) => [...prev, newUser]);
             return newUser;
         } catch (err) {
@@ -60,10 +61,11 @@ export const useUsers = () => {
         }
     }, []);
 
-    // ✓ Incluir loadUsers en las dependencias
     useEffect(() => {
-        loadUsers();
-    }, [loadUsers]);
+        if (areaSelected) {
+            loadUsers(areaSelected);
+        }
+    }, [areaSelected]);
 
     return {
         users,
